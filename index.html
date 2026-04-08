@@ -14,7 +14,19 @@
     button { padding: 12px 24px; border: none; border-radius: 50px; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
     .btn-bono { background: var(--bono); color: white; }
     .btn-primi { background: var(--primi); color: white; }
-    .ball { display: inline-block; width: 38px; height: 38px; line-height: 38px; background: #ffcc00; border-radius: 50%; margin: 4px; font-weight: bold; box-shadow: inset -3px -3px 6px rgba(0,0,0,0.2); }
+    .ball { 
+  display: inline-flex; /* Cambiado para centrar */
+  align-items: center; 
+  justify-content: center; 
+  width: 40px; 
+  height: 40px; 
+  background: #ffcc00; 
+  border-radius: 50%; 
+  margin: 5px; 
+  font-weight: bold; 
+  font-size: 1.1em;
+  box-shadow: inset -3px -3px 6px rgba(0,0,0,0.2); 
+}
     .comp { background: #ff5722; color: white; }
     .rein { background: #2196f3; color: white; }
     .premios-container { margin-top: 20px; text-align: left; background: #f9f9f9; border-radius: 12px; padding: 15px; }
@@ -36,10 +48,21 @@
   </div>
 
   <script>
-    // ⚠️ CAMBIA ESTA URL POR LA DE TU NUEVA IMPLEMENTACIÓN DE APPS SCRIPT
+    // ⚠️ URL de tu implementación de Apps Script
     const URL_API = 'https://script.google.com/macros/s/AKfycbwuHIxVRbrwY-sqqavXg-iCKBmnR3PTiLk3AvSg8hkKXLgRel3e6EigAwGWNctLclM/exec';
 
     if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
+
+    // Función para poner puntos de mil y quitar decimales
+    function formatearEuros(valor) {
+      if (!valor || valor === "0" || valor === 0 || valor === "0,00 €") return "0 €";
+      // Limpiamos el texto para quedarnos solo con el número
+      let numero = parseFloat(valor.toString().replace(/[.€\s]/g, '').replace(',', '.'));
+      if (isNaN(numero)) return valor; 
+      
+      // Formateamos sin decimales y con puntos de mil
+      return Math.floor(numero).toLocaleString('es-ES') + " €";
+    }
 
     async function cargar(tipo) {
       const cont = document.getElementById('contenido');
@@ -50,20 +73,24 @@
         const data = await res.json();
         
         let html = `<h2 style="color:${tipo === 'Bonoloto' ? 'var(--bono)' : 'var(--primi)'}">${tipo}</h2>`;
-        html += `<p style="margin-bottom:20px">Sorteo: <strong>${data.fecha}</strong></p>`;
+        // Cambio aquí: Añadimos el día de la semana antes de la fecha
+        html += `<p style="margin-bottom:20px; font-size: 1.1em;">${data.diaSemana}, <strong>${data.fecha}</strong></p>`;
+        
         html += `<div>${data.numeros.map(n => `<span class="ball">${n}</span>`).join('')}</div>`;
         html += `<p>Complementario: <span class="ball comp">${data.complementario}</span> Reintegro: <span class="ball rein">${data.reintegro}</span></p>`;
         
         html += `<div class="premios-container">`;
-        html += `<div class="row"><span>6 Aciertos</span><strong>${data.p6}</strong></div>`;
-        html += `<div class="row"><span>5 + C</span><strong>${data.p5c}</strong></div>`;
-        html += `<div class="row"><span>5 Aciertos</span><strong>${data.p5}</strong></div>`;
-        html += `<div class="row"><span>4 Aciertos</span><strong>${data.p4}</strong></div>`;
-        html += `<div class="row"><span>3 Aciertos</span><strong>${data.p3}</strong></div>`;
+        // Aplicamos formatearEuros a cada fila de premio
+        html += `<div class="row"><span>6 Aciertos</span><strong>${formatearEuros(data.p6)}</strong></div>`;
+        html += `<div class="row"><span>5 + C</span><strong>${formatearEuros(data.p5c)}</strong></div>`;
+        html += `<div class="row"><span>5 Aciertos</span><strong>${formatearEuros(data.p5)}</strong></div>`;
+        html += `<div class="row"><span>4 Aciertos</span><strong>${formatearEuros(data.p4)}</strong></div>`;
+        html += `<div class="row"><span>3 Aciertos</span><strong>${formatearEuros(data.p3)}</strong></div>`;
         html += `</div>`;
         
         if(data.bote && data.bote !== "0,00 €") {
-          html += `<div class="bote">Bote: ${data.bote}</div>`;
+          // También formateamos el bote por si acaso
+          html += `<div class="bote">Bote: ${formatearEuros(data.bote)}</div>`;
         }
         
         cont.innerHTML = html;
