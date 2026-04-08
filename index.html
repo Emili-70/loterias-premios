@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="manifest.json">
+  <title>Loterías & Premios</title>
+  <style>
+    :root { --bono: #00a651; --primi: #0054a6; }
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f4f7f6; margin: 0; padding: 20px; color: #333; }
+    .card { background: white; border-radius: 20px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); max-width: 420px; margin: 0 auto; animation: fadeIn 0.6s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .btn-group { display: flex; justify-content: center; gap: 12px; margin-bottom: 25px; }
+    button { padding: 12px 24px; border: none; border-radius: 50px; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .btn-bono { background: var(--bono); color: white; }
+    .btn-primi { background: var(--primi); color: white; }
+    .ball { display: inline-block; width: 38px; height: 38px; line-height: 38px; background: #ffcc00; border-radius: 50%; margin: 4px; font-weight: bold; box-shadow: inset -3px -3px 6px rgba(0,0,0,0.2); }
+    .comp { background: #ff5722; color: white; }
+    .rein { background: #2196f3; color: white; }
+    .premios-container { margin-top: 20px; text-align: left; background: #f9f9f9; border-radius: 12px; padding: 15px; }
+    .row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; font-size: 0.95em; }
+    .row:last-child { border: none; }
+    .bote { font-size: 1.4em; color: #d32f2f; font-weight: 800; margin-top: 15px; }
+  </style>
+</head>
+<body>
+
+  <div class="btn-group">
+    <button class="btn-bono" onclick="cargar('Bonoloto')">BONOLOTO</button>
+    <button class="btn-primi" onclick="cargar('Primitiva')">PRIMITIVA</button>
+  </div>
+
+  <div id="contenido" class="card">
+    <h2 style="color:#666">Bienvenido</h2>
+    <p>Toca un botón para ver resultados y premios actualizados.</p>
+  </div>
+
+  <script>
+    // ⚠️ CAMBIA ESTA URL POR LA DE TU NUEVA IMPLEMENTACIÓN DE APPS SCRIPT
+    const URL_API = 'https://script.google.com/macros/s/AKfycbwuHIxVRbrwY-sqqavXg-iCKBmnR3PTiLk3AvSg8hkKXLgRel3e6EigAwGWNctLclM/exec';
+
+    if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
+
+    async function cargar(tipo) {
+      const cont = document.getElementById('contenido');
+      cont.innerHTML = "<h3>Consultando...</h3>";
+      
+      try {
+        const res = await fetch(`${URL_API}?tipo=${tipo}`);
+        const data = await res.json();
+        
+        let html = `<h2 style="color:${tipo === 'Bonoloto' ? 'var(--bono)' : 'var(--primi)'}">${tipo}</h2>`;
+        html += `<p style="margin-bottom:20px">Sorteo: <strong>${data.fecha}</strong></p>`;
+        html += `<div>${data.numeros.map(n => `<span class="ball">${n}</span>`).join('')}</div>`;
+        html += `<p>Complementario: <span class="ball comp">${data.complementario}</span> Reintegro: <span class="ball rein">${data.reintegro}</span></p>`;
+        
+        html += `<div class="premios-container">`;
+        html += `<div class="row"><span>6 Aciertos</span><strong>${data.p6}</strong></div>`;
+        html += `<div class="row"><span>5 + C</span><strong>${data.p5c}</strong></div>`;
+        html += `<div class="row"><span>5 Aciertos</span><strong>${data.p5}</strong></div>`;
+        html += `<div class="row"><span>4 Aciertos</span><strong>${data.p4}</strong></div>`;
+        html += `<div class="row"><span>3 Aciertos</span><strong>${data.p3}</strong></div>`;
+        html += `</div>`;
+        
+        if(data.bote && data.bote !== "0,00 €") {
+          html += `<div class="bote">Bote: ${data.bote}</div>`;
+        }
+        
+        cont.innerHTML = html;
+      } catch (e) {
+        cont.innerHTML = "<p>Error al cargar datos. Revisa la conexión.</p>";
+      }
+    }
+  </script>
+</body>
+</html>
