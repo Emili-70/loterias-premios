@@ -95,10 +95,16 @@ function formatearEuros(valor) {
         html += `<div class="row"><span>3 Aciertos</span><strong>${formatearEuros(data.p3)}</strong></div>`;
         html += `</div>`;
         
-        if(data.bote && data.bote !== "0,00 €") {
-          // También formateamos el bote por si acaso
-          html += `<div class="bote">Bote: ${formatearEuros(data.bote)}</div>`;
+// --- Sustituye tu IF anterior por esto ---
+        let seccionBote = "";
+        if (!data.bote || data.bote === "0" || data.bote === 0 || data.bote === "0,00 €" || data.bote === "") {
+            seccionBote = `<div class="bote" style="color: #666; font-size: 1.1em; margin-top:15px;">Sin bote acumulado</div>`;
+        } else {
+            seccionBote = `<div class="bote" style="margin-top:15px;">Bote: ${formatearEuros(data.bote)}</div>`;
         }
+        html += seccionBote;
+        // -----------------------------------------
+        
         
         cont.innerHTML = html;
       } catch (e) {
