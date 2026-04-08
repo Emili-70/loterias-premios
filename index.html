@@ -57,23 +57,19 @@
 function formatearEuros(valor) {
   if (!valor || valor === "0" || valor === 0 || valor === "0,00 €") return "0 €";
   
-  // 1. Convertimos a texto y quitamos el símbolo € y espacios
   let str = valor.toString().replace(/[€\s]/g, '');
   
-  // 2. Manejo de formato europeo (35.226,63)
   if (str.includes(',') && str.includes('.')) {
-    // Si tiene puntos y comas, quitamos puntos y cambiamos coma por punto decimal
     str = str.replace(/\./g, '').replace(',', '.');
   } else if (str.includes(',')) {
-    // Si solo tiene coma (ej: 26,07), la cambiamos por punto
     str = str.replace(',', '.');
   }
 
   let numero = parseFloat(str);
   if (isNaN(numero)) return valor; 
   
-  // 3. Math.floor quita los decimales y toLocaleString pone los puntos de mil correctamente
-  return Math.floor(numero).toLocaleString('es-ES') + " €";
+  // Forzamos el uso de separador de grupos para que 4650 sea 4.650
+  return Math.floor(numero).toLocaleString('es-ES', { useGrouping: true }) + " €";
 }
     async function cargar(tipo) {
       const cont = document.getElementById('contenido');
