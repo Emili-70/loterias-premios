@@ -51,8 +51,12 @@
     // ⚠️ URL de tu implementación de Apps Script
     const URL_API = 'https://script.google.com/macros/s/AKfycbwuHIxVRbrwY-sqqavXg-iCKBmnR3PTiLk3AvSg8hkKXLgRel3e6EigAwGWNctLclM/exec';
 
-    if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
-
+  if ('serviceWorker' in navigator) {
+  // Añadimos ?v=2 para que el navegador sepa que el sw.js ha cambiado
+  navigator.serviceWorker.register('sw.js?v=2').then(() => {
+    console.log("Service Worker registrado con éxito");
+  });
+}
     // Función para poner puntos de mil y quitar decimales
 function formatearEuros(valor) {
   if (!valor || valor === "0" || valor === 0 || valor === "0,00 €") return "0 €";
