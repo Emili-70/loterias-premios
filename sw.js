@@ -1,4 +1,4 @@
-const CACHE = 'v4-premios';
+const CACHE = 'v100-premios';
 const URLS = [
   './',
   './index.html',
