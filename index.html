@@ -55,29 +55,21 @@
     const URL_API = 'https://script.google.com/macros/s/AKfycbwuHIxVRbrwY-sqqavXg-iCKBmnR3PTiLk3AvSg8hkKXLgRel3e6EigAwGWNctLclM/exec';
 
     if ('serviceWorker' in navigator) {
-      // Forzamos actualización del sw con v=10
-      navigator.serviceWorker.register('sw.js?v=10').then(() => {
+      navigator.serviceWorker.register('sw.js?v=110').then(() => {
         console.log("Service Worker actualizado");
       });
     }
 
     function formatearEuros(valor) {
       if (!valor || valor === "0" || valor === 0 || valor === "0,00 €" || valor === "0,00") return "0 €";
-      
-      // 1. Limpieza total de símbolos
       let str = valor.toString().replace(/[€\s]/g, '');
-      
-      // 2. Manejo de decimales europeos: si tiene punto y coma, quitamos el punto (mil)
       if (str.includes(',') && str.includes('.')) {
         str = str.replace(/\./g, '').replace(',', '.');
       } else if (str.includes(',')) {
         str = str.replace(',', '.');
       }
-
       let numero = parseFloat(str);
       if (isNaN(numero)) return valor; 
-      
-      // 3. Redondeamos al entero y forzamos el punto de mil siempre
       return Math.floor(numero).toLocaleString('es-ES', { useGrouping: true }) + " €";
     }
 
@@ -93,19 +85,31 @@
         html += `<p style="margin-bottom:20px; font-size: 1.1em;">${data.diaSemana}, <strong>${data.fecha}</strong></p>`;
         
         html += `<div>${data.numeros.map(n => `<span class="ball">${n}</span>`).join('')}</div>`;
-        // --- Sustituye tu línea anterior por este bloque ---
+        
         html += `<div style="margin-top:20px; text-align:center; display:flex; flex-wrap:wrap; justify-content:center; gap:15px; font-size: 1.05em;">`;
         html += `  <div style="display:flex; align-items:center;">Comp: <span class="ball comp">${data.complementario}</span></div>`;
         html += `  <div style="display:flex; align-items:center;">Rein: <span class="ball rein">${data.reintegro}</span></div>`;
         html += `</div>`;
-        // ----------------------------------------------------
         
         html += `<div class="premios-container">`;
-        html += `<div class="row"><span>6 Aciertos</span><strong>${formatearEuros(data.p6)}</strong></div>`;
-        html += `<div class="row"><span>5 + C</span><strong>${formatearEuros(data.p5c)}</strong></div>`;
-        html += `<div class="row"><span>5 Aciertos</span><strong>${formatearEuros(data.p5)}</strong></div>`;
-        html += `<div class="row"><span>4 Aciertos</span><strong>${formatearEuros(data.p4)}</strong></div>`;
-        html += `<div class="row"><span>3 Aciertos</span><strong>${formatearEuros(data.p3)}</strong></div>`;
+        
+        if (tipo === 'Primitiva') {
+          // Diseño especial para Primitiva (6 filas de premios)
+          html += `<div class="row" style="color:#d32f2f; font-weight:bold;"><span>6 + R (Especial)</span><strong>${formatearEuros(data.p6)}</strong></div>`;
+          html += `<div class="row"><span>6 Aciertos</span><strong>${formatearEuros(data.p5c)}</strong></div>`;
+          html += `<div class="row"><span>5 + C</span><strong>${formatearEuros(data.p5)}</strong></div>`;
+          html += `<div class="row"><span>5 Aciertos</span><strong>${formatearEuros(data.p4)}</strong></div>`;
+          html += `<div class="row"><span>4 Aciertos</span><strong>${formatearEuros(data.p3)}</strong></div>`;
+          // Si quisieras la de 3 aciertos (fija 8€), se añadiría aquí, pero con estas 5 extra cubres el desfase del Excel.
+        } else {
+          // Diseño para Bonoloto (5 filas de premios)
+          html += `<div class="row"><span>6 Aciertos</span><strong>${formatearEuros(data.p6)}</strong></div>`;
+          html += `<div class="row"><span>5 + C</span><strong>${formatearEuros(data.p5c)}</strong></div>`;
+          html += `<div class="row"><span>5 Aciertos</span><strong>${formatearEuros(data.p5)}</strong></div>`;
+          html += `<div class="row"><span>4 Aciertos</span><strong>${formatearEuros(data.p4)}</strong></div>`;
+          html += `<div class="row"><span>3 Aciertos</span><strong>${formatearEuros(data.p3)}</strong></div>`;
+        }
+        
         html += `</div>`;
         
         let seccionBote = "";
