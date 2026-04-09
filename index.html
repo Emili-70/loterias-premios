@@ -3,32 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  
   <link rel="manifest" href="manifest.json">
   <title>Loterías & Premios</title>
   <style>
     :root { --bono: #00a651; --primi: #0054a6; }
     body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f4f7f6; margin: 0; padding: 20px; color: #333; }
-    .card { background: white; border-radius: 20px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); max-width: 420px; margin: 0 auto; animation: fadeIn 0.6s ease-out; }
+    .card { background: white; border-radius: 20px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); max-width: 420px; margin: 0 auto; animation: fadeIn 0.6s ease-out; text-align: center; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     .btn-group { display: flex; justify-content: center; gap: 12px; margin-bottom: 25px; }
     button { padding: 12px 24px; border: none; border-radius: 50px; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
     .btn-bono { background: var(--bono); color: white; }
     .btn-primi { background: var(--primi); color: white; }
     .ball { 
-  display: inline-flex; /* Cambiado para centrar */
-  align-items: center; 
-  justify-content: center; 
-  width: 40px; 
-  height: 40px; 
-  background: #ffcc00; 
-  border-radius: 50%; 
-  margin: 5px; 
-  font-weight: bold; 
-  font-size: 1.1em;
-  box-shadow: inset -3px -3px 6px rgba(0,0,0,0.2); 
-}
-    .comp { background: #ff5722; color: white; }
-    .rein { background: #2196f3; color: white; }
+      display: inline-flex; 
+      align-items: center; 
+      justify-content: center; 
+      width: 40px; 
+      height: 40px; 
+      background: #ffcc00; 
+      border-radius: 50%; 
+      margin: 5px; 
+      font-weight: bold; 
+      font-size: 1.1em;
+      box-shadow: inset -3px -3px 6px rgba(0,0,0,0.2); 
+    }
+    .comp { background: #ff5722 !important; color: white; }
+    .rein { background: #2196f3 !important; color: white; }
     .premios-container { margin-top: 20px; text-align: left; background: #f9f9f9; border-radius: 12px; padding: 15px; }
     .row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; font-size: 0.95em; }
     .row:last-child { border: none; }
@@ -48,33 +52,35 @@
   </div>
 
   <script>
-    // ⚠️ URL de tu implementación de Apps Script
     const URL_API = 'https://script.google.com/macros/s/AKfycbwuHIxVRbrwY-sqqavXg-iCKBmnR3PTiLk3AvSg8hkKXLgRel3e6EigAwGWNctLclM/exec';
 
-  if ('serviceWorker' in navigator) {
-  // Añadimos ?v=2 para que el navegador sepa que el sw.js ha cambiado
-  navigator.serviceWorker.register('sw.js?v=2').then(() => {
-    console.log("Service Worker registrado con éxito");
-  });
-}
-    // Función para poner puntos de mil y quitar decimales
-function formatearEuros(valor) {
-  if (!valor || valor === "0" || valor === 0 || valor === "0,00 €") return "0 €";
-  
-  let str = valor.toString().replace(/[€\s]/g, '');
-  
-  if (str.includes(',') && str.includes('.')) {
-    str = str.replace(/\./g, '').replace(',', '.');
-  } else if (str.includes(',')) {
-    str = str.replace(',', '.');
-  }
+    if ('serviceWorker' in navigator) {
+      // Forzamos actualización del sw con v=10
+      navigator.serviceWorker.register('sw.js?v=10').then(() => {
+        console.log("Service Worker actualizado");
+      });
+    }
 
-  let numero = parseFloat(str);
-  if (isNaN(numero)) return valor; 
-  
-  // Forzamos el uso de separador de grupos para que 4650 sea 4.650
-  return Math.floor(numero).toLocaleString('es-ES', { useGrouping: true }) + " €";
-}
+    function formatearEuros(valor) {
+      if (!valor || valor === "0" || valor === 0 || valor === "0,00 €" || valor === "0,00") return "0 €";
+      
+      // 1. Limpieza total de símbolos
+      let str = valor.toString().replace(/[€\s]/g, '');
+      
+      // 2. Manejo de decimales europeos: si tiene punto y coma, quitamos el punto (mil)
+      if (str.includes(',') && str.includes('.')) {
+        str = str.replace(/\./g, '').replace(',', '.');
+      } else if (str.includes(',')) {
+        str = str.replace(',', '.');
+      }
+
+      let numero = parseFloat(str);
+      if (isNaN(numero)) return valor; 
+      
+      // 3. Redondeamos al entero y forzamos el punto de mil siempre
+      return Math.floor(numero).toLocaleString('es-ES', { useGrouping: true }) + " €";
+    }
+
     async function cargar(tipo) {
       const cont = document.getElementById('contenido');
       cont.innerHTML = "<h3>Consultando...</h3>";
@@ -84,14 +90,12 @@ function formatearEuros(valor) {
         const data = await res.json();
         
         let html = `<h2 style="color:${tipo === 'Bonoloto' ? 'var(--bono)' : 'var(--primi)'}">${tipo}</h2>`;
-        // Cambio aquí: Añadimos el día de la semana antes de la fecha
         html += `<p style="margin-bottom:20px; font-size: 1.1em;">${data.diaSemana}, <strong>${data.fecha}</strong></p>`;
         
         html += `<div>${data.numeros.map(n => `<span class="ball">${n}</span>`).join('')}</div>`;
-        html += `<p>Complementario: <span class="ball comp">${data.complementario}</span> Reintegro: <span class="ball rein">${data.reintegro}</span></p>`;
+        html += `<p style="margin-top:15px">Comp: <span class="ball comp">${data.complementario}</span> Rein: <span class="ball rein">${data.reintegro}</span></p>`;
         
         html += `<div class="premios-container">`;
-        // Aplicamos formatearEuros a cada fila de premio
         html += `<div class="row"><span>6 Aciertos</span><strong>${formatearEuros(data.p6)}</strong></div>`;
         html += `<div class="row"><span>5 + C</span><strong>${formatearEuros(data.p5c)}</strong></div>`;
         html += `<div class="row"><span>5 Aciertos</span><strong>${formatearEuros(data.p5)}</strong></div>`;
@@ -99,16 +103,13 @@ function formatearEuros(valor) {
         html += `<div class="row"><span>3 Aciertos</span><strong>${formatearEuros(data.p3)}</strong></div>`;
         html += `</div>`;
         
-// --- Sustituye tu IF anterior por esto ---
         let seccionBote = "";
-        if (!data.bote || data.bote === "0" || data.bote === 0 || data.bote === "0,00 €" || data.bote === "") {
+        if (!data.bote || data.bote === "0" || data.bote === 0 || data.bote === "0,00 €" || data.bote === "" || data.bote === "0,00") {
             seccionBote = `<div class="bote" style="color: #666; font-size: 1.1em; margin-top:15px;">Sin bote acumulado</div>`;
         } else {
             seccionBote = `<div class="bote" style="margin-top:15px;">Bote: ${formatearEuros(data.bote)}</div>`;
         }
         html += seccionBote;
-        // -----------------------------------------
-        
         
         cont.innerHTML = html;
       } catch (e) {
