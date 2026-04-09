@@ -93,7 +93,12 @@
         html += `<p style="margin-bottom:20px; font-size: 1.1em;">${data.diaSemana}, <strong>${data.fecha}</strong></p>`;
         
         html += `<div>${data.numeros.map(n => `<span class="ball">${n}</span>`).join('')}</div>`;
-        html += `<p style="margin-top:15px">Comp: <span class="ball comp">${data.complementario}</span> Rein: <span class="ball rein">${data.reintegro}</span></p>`;
+        // --- Sustituye tu línea anterior por este bloque ---
+        html += `<div style="margin-top:20px; text-align:center; display:flex; flex-wrap:wrap; justify-content:center; gap:15px; font-size: 1.05em;">`;
+        html += `  <div style="display:flex; align-items:center;">Comp: <span class="ball comp">${data.complementario}</span></div>`;
+        html += `  <div style="display:flex; align-items:center;">Rein: <span class="ball rein">${data.reintegro}</span></div>`;
+        html += `</div>`;
+        // ----------------------------------------------------
         
         html += `<div class="premios-container">`;
         html += `<div class="row"><span>6 Aciertos</span><strong>${formatearEuros(data.p6)}</strong></div>`;
