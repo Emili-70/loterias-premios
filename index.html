@@ -55,7 +55,7 @@
     const URL_API = 'https://script.google.com/macros/s/AKfycbwuHIxVRbrwY-sqqavXg-iCKBmnR3PTiLk3AvSg8hkKXLgRel3e6EigAwGWNctLclM/exec';
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js?v=110').then(() => {
+      navigator.serviceWorker.register('sw.js?v=115').then(() => {
         console.log("Service Worker actualizado");
       });
     }
@@ -94,15 +94,15 @@
         html += `<div class="premios-container">`;
         
         if (tipo === 'Primitiva') {
-          // Diseño especial para Primitiva (6 filas de premios)
-          html += `<div class="row" style="color:#d32f2f; font-weight:bold;"><span>6 + R (Especial)</span><strong>${formatearEuros(data.p6)}</strong></div>`;
-          html += `<div class="row"><span>6 Aciertos</span><strong>${formatearEuros(data.p5c)}</strong></div>`;
-          html += `<div class="row"><span>5 + C</span><strong>${formatearEuros(data.p5)}</strong></div>`;
-          html += `<div class="row"><span>5 Aciertos</span><strong>${formatearEuros(data.p4)}</strong></div>`;
-          html += `<div class="row"><span>4 Aciertos</span><strong>${formatearEuros(data.p3)}</strong></div>`;
-          // Si quisieras la de 3 aciertos (fija 8€), se añadiría aquí, pero con estas 5 extra cubres el desfase del Excel.
+          // Diseño para Primitiva con las 6 categorías (incluyendo Especial y 3 aciertos)
+          html += `<div class="row" style="color:#d32f2f; font-weight:bold;"><span>6 + R (Especial)</span><strong>${formatearEuros(data.p6r)}</strong></div>`;
+          html += `<div class="row"><span>6 Aciertos</span><strong>${formatearEuros(data.p6)}</strong></div>`;
+          html += `<div class="row"><span>5 + C</span><strong>${formatearEuros(data.p5c)}</strong></div>`;
+          html += `<div class="row"><span>5 Aciertos</span><strong>${formatearEuros(data.p5)}</strong></div>`;
+          html += `<div class="row"><span>4 Aciertos</span><strong>${formatearEuros(data.p4)}</strong></div>`;
+          html += `<div class="row"><span>3 Aciertos</span><strong>${formatearEuros(data.p3)}</strong></div>`;
         } else {
-          // Diseño para Bonoloto (5 filas de premios)
+          // Diseño para Bonoloto (5 categorías)
           html += `<div class="row"><span>6 Aciertos</span><strong>${formatearEuros(data.p6)}</strong></div>`;
           html += `<div class="row"><span>5 + C</span><strong>${formatearEuros(data.p5c)}</strong></div>`;
           html += `<div class="row"><span>5 Aciertos</span><strong>${formatearEuros(data.p5)}</strong></div>`;
